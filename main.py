@@ -1,21 +1,73 @@
+from telegram import Update
+from telegram.ext import (
+    ApplicationBuilder,
+    MessageHandler,
+    filters,
+    CallbackContext
+)
+from collections import deque
+import google.generativeai as genai
 from config import Config
 from logger import setup_logger
-from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
+
+# A global dictionary to store messages, using deque to keep only the last 100 messages
+message_storage = {}
+
+summarize_system_prompt = f"""
+You are a Narrator who summarize a chat history for fast boarding
+"""
 
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    thread_id = update.message.message_thread_id
-    await context.bot.send_message(chat_id=update.effective_chat.id, message_thread_id=thread_id,
-                                   text="I'm a bot, please talk to me!")
+# Define the function to handle messages
+async def store_message(update: Update, context: CallbackContext) -> None:
+    chat_id = update.effective_chat.id
+    message = update.message
+
+    if chat_id not in message_storage:
+        message_storage[chat_id] = deque(maxlen=100)
+
+    message_storage[chat_id].append((message.message_id, message.text))
 
 
-if __name__ == '__main__':
+# Function to handle commands or any other types of messages
+async def handle_command(update: Update, context: CallbackContext) -> None:
+    # Example: respond to a start command
+    if update.message.text == "/start":
+        await update.message.reply_text("Hello! I'm tracking the last 100 messages in this group/channel.")
+
+
+# Function to summarize messages
+async def summarize_messages(update: Update, context: CallbackContext) -> None:
+    chat_id = update.effective_chat.id
+
+    if chat_id not in message_storage or len(message_storage[chat_id]) == 0:
+        await update.message.reply_text("No messages to summarize.")
+        return
+
+    messages = list(message_storage[chat_id])
+    text_to_summarize = "\n".join([msg[1] for msg in messages])
+
+    chat_summarize_model = genai.GenerativeModel(model_name='gemini-1.5-flash-latest',
+                                                 system_instruction=summarize_system_prompt)
+
+    summary = chat_summarize_model.generate_content(text_to_summarize)
+
+    await update.message.reply_text(f"Summary of the last 100 messages:\n{summary}")
+
+
+def main() -> None:
     configs = Config()
     setup_logger(configs.LOG_LEVEL)
-
+    # Replace 'YOUR_TOKEN' with your actual bot token
     application = ApplicationBuilder().token(configs.TELEGRAM_TOKEN).build()
+    genai.configure(api_key=configs.GEMINI_TOKEN)
+    # Add handlers
+    application.add_handler(MessageHandler(filters.text & (~filters.command), store_message))
+    application.add_handler(MessageHandler(filters.command, handle_command))
 
-    start_handler = CommandHandler('start', start)
-
+    # Start the bot
     application.run_polling()
+
+
+if __name__ == "__main__":
+    main()
