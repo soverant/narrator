@@ -8,4 +8,4 @@ class Config:
         load_dotenv()
         self.TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN", telegram_token)
         self.GEMINI_TOKEN = os.environ.get("GEMINI_TOKEN", gemini_token)
-        self.LOG_LEVEL = os.environ.get("LOG_LEVEL", log_level)
+        self.LOG_LEVEL = getattr(logging, os.environ.get("LOG_LEVEL","").upper(), log_level)
