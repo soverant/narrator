@@ -10,6 +10,7 @@ from collections import deque
 import google.generativeai as genai
 from config import Config
 from logger import setup_logger
+import logging
 
 # A global dictionary to store messages, using deque to keep only the last 100 messages
 message_storage = {}
@@ -18,6 +19,7 @@ summarize_system_prompt = f"""
 You are a Narrator who summarize a chat history for fast boarding
 """
 
+logger = logging.getLogger(__name__)
 
 # Define the function to handle messages
 async def store_message(update: Update, context: CallbackContext) -> None:
@@ -50,10 +52,10 @@ async def summarize_messages(update: Update, context: CallbackContext) -> None:
 
     chat_summarize_model = genai.GenerativeModel(model_name='gemini-1.5-flash-latest',
                                                  system_instruction=summarize_system_prompt)
-
+    logger.debug("summary request: %s", text_to_summarize)
     summary = chat_summarize_model.generate_content(text_to_summarize)
-
-    await update.message.reply_text(f"Summary of the last 100 messages:\n{summary}")
+    logger.debug("summary response: %s", summary.text)
+    await update.message.reply_text(f"Summary of the last 100 messages:\n{summary.text}")
 
 
 def main() -> None:
