@@ -62,8 +62,8 @@ def main() -> None:
     application = ApplicationBuilder().token(configs.TELEGRAM_TOKEN).build()
     genai.configure(api_key=configs.GEMINI_TOKEN)
     # Add handlers
-    application.add_handler(MessageHandler(filters.text & (~filters.command), store_message))
-    application.add_handler(MessageHandler(filters.command, handle_command))
+    application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), store_message))
+    application.add_handler(MessageHandler(filters.COMMAND, handle_command))
 
     # Start the bot
     application.run_polling()
