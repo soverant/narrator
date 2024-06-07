@@ -3,7 +3,8 @@ from telegram.ext import (
     ApplicationBuilder,
     MessageHandler,
     filters,
-    CallbackContext
+    CallbackContext,
+    CommandHandler
 )
 from collections import deque
 import google.generativeai as genai
@@ -64,7 +65,7 @@ def main() -> None:
     # Add handlers
     application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), store_message))
     application.add_handler(MessageHandler(filters.COMMAND, handle_command))
-
+    application.add_handler(CommandHandler("summarize", summarize_messages))
     # Start the bot
     application.run_polling()
 
