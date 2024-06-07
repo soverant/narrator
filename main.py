@@ -21,6 +21,7 @@ You are a Narrator who summarize a chat history for fast boarding
 
 logger = logging.getLogger(__name__)
 
+
 # Define the function to handle messages
 async def store_message(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
@@ -33,14 +34,14 @@ async def store_message(update: Update, context: CallbackContext) -> None:
 
 
 # Function to handle commands or any other types of messages
-async def handle_command(update: Update, context: CallbackContext) -> None:
-    # Example: respond to a start command
-    if update.message.text == "/start":
-        await update.message.reply_text("Hello! I'm tracking the last 100 messages in this group/channel.")
+async def start(update: Update, context: CallbackContext) -> None:
+    logger.debug("start called")
+    await update.message.reply_text("Hello! I'm tracking the last 100 messages in this group/channel.")
 
 
 # Function to summarize messages
 async def summarize_messages(update: Update, context: CallbackContext) -> None:
+    logger.debug("summarize_messages called")
     chat_id = update.effective_chat.id
 
     if chat_id not in message_storage or len(message_storage[chat_id]) == 0:
@@ -66,7 +67,7 @@ def main() -> None:
     genai.configure(api_key=configs.GEMINI_TOKEN)
     # Add handlers
     application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), store_message))
-    application.add_handler(MessageHandler(filters.COMMAND, handle_command))
+    application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("summarize", summarize_messages))
     # Start the bot
     application.run_polling()
