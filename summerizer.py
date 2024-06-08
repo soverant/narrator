@@ -1,16 +1,15 @@
 import google.generativeai as genai
-from openai import OpenAI
+from openai import AzureOpenAI
 import logging
 import config
 
 logger = logging.getLogger(__name__)
 genai.configure(api_key=config.get_config().GEMINI_TOKEN)
-client = OpenAI(
+client = AzureOpenAI(
     # This is the default and can be omitted
     api_key=config.get_config().OPENAI_TOKEN,
-    api_type="azure",
     api_version="2023-07-01-preview",
-    api_base="https://mlk-openai-farhoud.openai.azure.com/",
+    azure_endpoint="https://mlk-openai-farhoud.openai.azure.com/",
 )
 
 
