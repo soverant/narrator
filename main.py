@@ -18,7 +18,7 @@ import config
 from logger import setup_logger
 
 # A global dictionary to store messages, using deque to keep only the last 100 messages
-from summerizer import gai_summarizer
+from summerizer import gai_summarizer, openai_summarizer
 
 message_storage = {}
 
@@ -54,7 +54,7 @@ async def summarize_messages(update: Update, context: CallbackContext) -> None:
         return
 
     messages = list(message_storage[chat_id])
-    summary = gai_summarizer(messages)
+    summary = openai_summarizer(messages)
     logger.debug("summary response: %s", summary.text)
     await update.message.reply_text(f"Summary of the last 100 messages:\n{summary.text}")
 
@@ -104,7 +104,6 @@ def main() -> None:
     setup_logger(configs.LOG_LEVEL)
     # Replace 'YOUR_TOKEN' with your actual bot token
     application = ApplicationBuilder().token(configs.TELEGRAM_TOKEN).build()
-    genai.configure(api_key=configs.GEMINI_TOKEN)
     # Add handlers
     application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), store_message))
     application.add_handler(CommandHandler("start", start))

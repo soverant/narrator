@@ -12,3 +12,4 @@ def setup_logger(log_level=logging.DEBUG):
     root.addHandler(handler)
     # set higher logging level for httpx to avoid all GET and POST requests being logged
     logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
