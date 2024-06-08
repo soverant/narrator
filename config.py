@@ -16,7 +16,7 @@ class Config:
         self.LOG_LEVEL = getattr(logging, os.environ.get("LOG_LEVEL", "").upper(), log_level)
         self.TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN", telegram_token)
         self.GEMINI_TOKEN = os.environ.get("GEMINI_TOKEN", gemini_token)
-        self.OPENAI_TOKEN = os.environ.get("OPEN_AI_TOKEN", openai_token)
+        self.OPENAI_TOKEN = os.environ.get("OPENAI_TOKEN", openai_token)
 
 
 def get_config():

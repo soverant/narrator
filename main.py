@@ -55,8 +55,8 @@ async def summarize_messages(update: Update, context: CallbackContext) -> None:
 
     messages = list(message_storage[chat_id])
     summary = openai_summarizer(messages)
-    logger.debug("summary response: %s", summary.text)
-    await update.message.reply_text(f"Summary of the last 100 messages:\n{summary.text}")
+    logger.debug("summary response: %s", summary)
+    await update.message.reply_text(f"Summary of the last 100 messages:\n{summary}")
 
 
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
